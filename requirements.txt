@@ -1,0 +1,8 @@
+streamlit
+pandas>=2.0
+pyarrow
+numpy
+pytest
+ruff
+black
+plotly

@@ -34,7 +34,16 @@ def load_data() -> pd.DataFrame:
     if "city" in df.columns:
         df["city"] = df["city"].astype("string")
 
-    cols = ["city", "date", "temp_min", "temp_avg", "temp_max", "rh_avg", "precip_sum", "hours"]
+    cols = [
+        "city",
+        "date",
+        "temp_min",
+        "temp_avg",
+        "temp_max",
+        "rh_avg",
+        "precip_sum",
+        "hours",
+    ]
     df = df[[c for c in cols if c in df.columns]].sort_values(["city", "date"])
     return df
 
@@ -50,7 +59,9 @@ try:
 
     # ---- Filtros ----
     cities = sorted(df["city"].dropna().unique().tolist())
-    sel_cities = st.sidebar.multiselect("Cidades", options=cities, default=cities[:3] if cities else [])
+    sel_cities = st.sidebar.multiselect(
+        "Cidades", options=cities, default=cities[:3] if cities else []
+    )
     min_date, max_date = df["date"].min(), df["date"].max()
     sel_dates = st.sidebar.date_input(
         "Período",
@@ -73,7 +84,9 @@ try:
     st.title("🌤️ Weather ETL • Daily Dashboard")
 
     if dff.empty:
-        st.info("Nenhum dado para os filtros selecionados. Ajuste as cidades e o período.")
+        st.info(
+            "Nenhum dado para os filtros selecionados. Ajuste as cidades e o período."
+        )
         st.stop()
 
     # ---- KPIs ----
@@ -89,7 +102,7 @@ try:
 
     # ---- Visualizações ----
     st.subheader("Visualizações")
-    tab1, tab2,  tab4, tab5 = st.tabs(
+    tab1, tab2, tab4, tab5 = st.tabs(
         [
             "Temperatura (linha)",
             "Umidade (linha)",
@@ -102,15 +115,17 @@ try:
     # Temperatura (linha)
     with tab1:
         st.caption("Médias diárias por cidade")
-        temp_pivot = (
-            dff.pivot_table(index="date", columns="city", values="temp_avg", aggfunc="mean").sort_index()
-        )
+        temp_pivot = dff.pivot_table(
+            index="date", columns="city", values="temp_avg", aggfunc="mean"
+        ).sort_index()
         st.line_chart(temp_pivot, height=300)
 
     # Umidade (linha)
     with tab2:
         st.caption("Médias diárias por cidade")
-        rh_pivot = dff.pivot_table(index="date", columns="city", values="rh_avg", aggfunc="mean").sort_index()
+        rh_pivot = dff.pivot_table(
+            index="date", columns="city", values="rh_avg", aggfunc="mean"
+        ).sort_index()
         st.line_chart(rh_pivot, height=300)
 
     # Precipitação (área)
@@ -181,7 +196,9 @@ try:
     # ---- Download ----
     st.subheader("Exportar dados filtrados")
     csv_bytes = dff.to_csv(index=False).encode("utf-8")
-    st.download_button("Baixar CSV", data=csv_bytes, file_name="weather_filtered.csv", mime="text/csv")
+    st.download_button(
+        "Baixar CSV", data=csv_bytes, file_name="weather_filtered.csv", mime="text/csv"
+    )
 
 except FileNotFoundError as e:
     st.error(str(e))
@@ -227,7 +244,7 @@ except FileNotFoundError as e:
 
 #     # mask = df["city"].isin(sel_cities) & df["date"].between(start_date, end_date)
 #     mask = df["city"].isin(sel_cities) & df["date"].between(pd.to_datetime(start_date), pd.to_datetime(end_date))
-    
+
 #     dff = df.loc[mask].copy()
 
 #     st.title("🌤️ Painel Meteorológico")
